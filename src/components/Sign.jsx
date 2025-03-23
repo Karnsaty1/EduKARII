@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import "./comp.css";
 
 const Sign = () => {
-  const [check, setCheck] = useState(false); 
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]); 
+  const [check, setCheck] = useState(false);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const navigate = useNavigate();
-  const otpRefs = useRef([]); 
+  const otpRefs = useRef([]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -20,27 +20,45 @@ const Sign = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Client-side validation
+    if (!formData.name || !formData.email || !formData.password) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    console.log("Form Data:", formData); // Log the form data
+
     try {
       const rep1 = await fetch(`${import.meta.env.VITE_BACKEND}/auth/sign`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials:'include',
+        credentials: "include",
         body: JSON.stringify(formData),
       });
+
       if (rep1.ok) {
-        setCheck(true); 
+        setCheck(true);
       } else {
-        console.log("Sign-up failed:", rep1.statusText);
+        const errorData = await rep1.json(); // Capture server response
+        console.log("Sign-up failed:", errorData);
+        alert(`Sign-up failed: ${errorData.message || rep1.statusText}`);
       }
     } catch (error) {
       console.log("Error during sign-up:", error);
+      alert("An error occurred during sign-up. Please try again.");
     }
   };
 
   const handleOtpChange = (index, value) => {
-    if (/^\d?$/.test(value)) { 
+    if (/^\d?$/.test(value)) {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
@@ -53,7 +71,7 @@ const Sign = () => {
 
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
-      otpRefs.current[index - 1].focus(); 
+      otpRefs.current[index - 1].focus();
     }
   };
 
@@ -61,7 +79,7 @@ const Sign = () => {
     e.preventDefault();
     const otpValue = otp.join("");
     const otpNumber = parseInt(otpValue, 10);
-    console.log("OTP Value:", otpValue); 
+    console.log("OTP Value:", otpValue);
 
     if (otpValue.length !== 6) {
       alert("Please enter a 6-digit OTP.");
@@ -77,14 +95,17 @@ const Sign = () => {
         credentials: "include",
         body: JSON.stringify({ email: formData.email, otp: otpNumber }),
       });
+
       if (rep2.ok) {
-        navigate("/dashboard"); 
+        navigate("/dashboard");
       } else {
         const text = await rep2.text();
         console.log("OTP verification failed:", text);
+        alert("OTP verification failed. Please try again.");
       }
     } catch (error) {
       console.log("Error during OTP verification:", error);
+      alert("An error occurred during OTP verification. Please try again.");
     }
   };
 
