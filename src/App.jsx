@@ -9,6 +9,7 @@ import StreamBoard from './components/StreamBoard'
 import JobPortal from './components/JobPortal'
 import Prep from './components/Prep';
 import PrepDetails from './components/PrepDeatils';
+import Log from './components/Log';
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
     <Route path='/board' element={<StreamBoard/>}/>
     <Route path='/jobs' element={<JobPortal/>}/>
     <Route path='/prep' element={<Prep/>}/>
+    <Route path='/log' element={<Log/>}/>
     <Route path="/prepDetail/:topic" element={<PrepDetails />} />
       </Routes>
     </ContentWrapper>
